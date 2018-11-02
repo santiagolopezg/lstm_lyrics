@@ -1,3 +1,5 @@
+# coding=utf-8
+
 """
 Example script to generate text from a corpus of text
 --By word--
@@ -20,14 +22,17 @@ from keras.layers import Dense, Dropout, Activation, LSTM, Bidirectional, Embedd
 import numpy as np
 import random
 import sys
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 import io
 import os
 
 # Parameters: change to experiment different configurations
 SEQUENCE_LEN = 10
-MIN_WORD_FREQUENCY = 10
+MIN_WORD_FREQUENCY = 0
 STEP = 1
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 
 def shuffle_and_split_training_set(sentences_original, next_original, percentage_test=2):
@@ -94,7 +99,8 @@ def on_epoch_end(epoch, logs):
     seed_index = np.random.randint(len(sentences+sentences_test))
     seed = (sentences+sentences_test)[seed_index]
 
-    for diversity in [0.3, 0.4, 0.5, 0.6, 0.7]:
+    #for diversity in [0.3, 0.4, 0.5, 0.6, 0.7]:
+    for diversity in [0.8, 0.9, 1]:
         sentence = seed
         examples_file.write('----- Diversity:' + str(diversity) + '\n')
         examples_file.write('----- Generating with seed:\n"' + ' '.join(sentence) + '"\n')
@@ -134,7 +140,8 @@ if __name__ == "__main__":
         os.makedirs('./checkpoints/')
 
     with io.open(corpus, encoding='utf-8') as f:
-        text = f.read().lower().replace('\n', ' \n ')
+        text = f.read()#.replace('\n', ' \n ')
+        #text = f.read().lower().replace('\n', ' \n ')
     print('Corpus length in characters:', len(text))
 
     text_in_words = [w for w in text.split(' ') if w.strip() != '' or w == '\n']
@@ -179,7 +186,7 @@ if __name__ == "__main__":
     model = get_model()
     model.compile(loss='sparse_categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
 
-    file_path = "./checkpoints/LSTM_LYRICS-epoch{epoch:03d}-words%d-sequence%d-minfreq%d-loss{loss:.4f}-acc{acc:.4f}-val_loss{val_loss:.4f}-val_acc{val_acc:.4f}" % (
+    file_path = "./checkpoints/LSTM_-epoch{epoch:03d}-words%d-sequence%d-minfreq%d-loss{loss:.4f}-acc{acc:.4f}-val_loss{val_loss:.4f}-val_acc{val_acc:.4f}" % (
         len(words),
         SEQUENCE_LEN,
         MIN_WORD_FREQUENCY
